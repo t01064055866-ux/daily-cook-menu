@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3월 제철 밥상 - 4인 가구 식단기</title>
+    <style>
+        :root { --primary: #2e7d32; --bg: #f5f5f5; --card: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background-color: var(--bg); color: #333; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; color: var(--primary); font-size: 1.4rem; }
+        .header p { margin: 5px 0 0; font-size: 0.85rem; color: #666; }
+        .btn-refresh-all { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-bottom: 15px; cursor: pointer; }
+        .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
+        .day-title { font-weight: bold; font-size: 1.1rem; color: #1b5e20; }
+        .btn-refresh { background: #e8f5e9; border: none; color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85rem; }
+        .menu-item { background: #fafafa; padding: 6px 8px; border-radius: 6px; }
+        .menu-item strong { display: block; color: #666; font-size: 0.75rem; margin-bottom: 2px; }
+        .grocery-sec { background: var(--card); border-radius: 12px; padding: 16px; margin-top: 20px; }
+        .grocery-sec h2 { font-size: 1.1rem; margin-top: 0; color: var(--primary); }
+        .grocery-list { font-size: 0.85rem; line-height: 1.6; color: #444; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🌱 3월 제철 식단 도우미</h1>
+        <p>4인 가구 · 고기 메인 · 초보자 1시간 컷</p>
+    </div>
+
+    <button class="btn-refresh-all" onclick="refreshAll()">🔄 이번 주 식단 전체 리프레쉬</button>
+
+    <div id="meal-container"></div>
+
+    <div class="grocery-sec">
+        <h2>🛒 이번 주 4인 통합 장보기</h2>
+        <div class="grocery-list">
+            • <b>고기류:</b> 제육용 600g, 소불고기용 600g, 찌개용 돼지고기 600g, 목살 구이용 600g, 훈제오리 1팩<br>
+            • <b>제철 나물:</b> 달래 1묶음, 냉이 1봉, 봄동 2포기, 부추 1단, 시금치 1단<br>
+            • <b>야채/기타:</b> 대파, 양파, 마늘, 콩나물 2봉, 두부 2모, 계란 1판, 양송이, 오이
+        </div>
+    </div>
+
+    <script>
+        const days = ['월요일', '화요일', '수요일', '목요일', '금요일'];
+        
+        const database = {
+            mains: ['제육볶음', '소불고기', '돼지고기 김치찜', '훈제오리 부추볶음', '돼지목살 찹스테이크', '돼지갈비찜', '우삼겹 숙주볶음'],
+            soups: ['달래 된장찌개', '냉이 된장국', '계란파국', '맑은 콩나물국', '양송이 들깨탕', '두부 새우젓국', '소고기 뭇국'],
+            side1s: ['봄동 겉절이', '콩나물무침', '풋고추 된장무침', '봄동 쌈 & 쌈장', '오이양파 무침', '부추 무침'],
+            side2s: ['계란찜', '조미김', '어묵볶음', '시금치 나물', '콘샐러드', '두부구이']
+        };
+
+        let currentPlan = [
+            { main: 0, soup: 0, side1: 0, side2: 0 },
+            { main: 1, soup: 1, side1: 1, side2: 1 },
+            { main: 2, soup: 2, side1: 2, side2: 2 },
+            { main: 3, soup: 3, side1: 3, side2: 3 },
+            { main: 4, soup: 4, side1: 4, side2: 4 }
+        ];
+
+        function render() {
+            const container = document.getElementById('meal-container');
+            container.innerHTML = '';
+
+            days.forEach((day, idx) => {
+                const item = currentPlan[idx];
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="day-title">${day}</span>
+                        <button class="btn-refresh" onclick="refreshDay(${idx})">🎲 이 날만 변경</button>
+                    </div>
+                    <div class="menu-grid">
+                        <div class="menu-item"><strong>메인(고기)</strong>${database.mains[item.main]}</div>
+                        <div class="menu-item"><strong>국/찌개</strong>${database.soups[item.soup]}</div>
+                        <div class="menu-item"><strong>반찬 1</strong>${database.side1s[item.side1]}</div>
+                        <div class="menu-item"><strong>반찬 2</strong>${database.side2s[item.side2]}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function getRandomIndex(array) {
+            return Math.floor(Math.random() * array.length);
+        }
+
+        function refreshDay(idx) {
+            currentPlan[idx] = {
+                main: getRandomIndex(database.mains),
+                soup: getRandomIndex(database.soups),
+                side1: getRandomIndex(database.side1s),
+                side2: getRandomIndex(database.side2s)
+            };
+            render();
+        }
+
+        function refreshAll() {
+            days.forEach((_, idx) => refreshDay(idx));
+        }
+
+        render();
+    </script>
+</body>
+</html>
