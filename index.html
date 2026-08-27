@@ -14,13 +14,23 @@
         .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
         .day-title { font-weight: bold; font-size: 1.1rem; color: #1b5e20; }
-        .btn-refresh { background: #e8f5e9; border: none; color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+        .btn-group { display: flex; gap: 6px; }
+        .btn-action { border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+        .btn-recipe { background: #e3f2fd; color: #1565c0; }
+        .btn-refresh { background: #e8f5e9; color: var(--primary); }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85rem; }
         .menu-item { background: #fafafa; padding: 6px 8px; border-radius: 6px; }
         .menu-item strong { display: block; color: #666; font-size: 0.75rem; margin-bottom: 2px; }
-        .grocery-sec { background: var(--card); border-radius: 12px; padding: 16px; margin-top: 20px; }
-        .grocery-sec h2 { font-size: 1.1rem; margin-top: 0; color: var(--primary); }
-        .grocery-list { font-size: 0.85rem; line-height: 1.6; color: #444; }
+        
+        /* 모달 및 상세페이지 스타일 */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100; justify-content:center; align-items:center; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 85%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        .close-btn { background: #666; color: white; border: none; padding: 8px 16px; border-radius: 6px; float: right; cursor: pointer; margin-top: 10px; }
+        .recipe-step { background: #f9f9f9; padding: 10px; border-left: 4px solid var(--primary); margin-bottom: 8px; font-size: 0.85rem; line-height: 1.4; }
+        
+        .grocery-btn { width: 100%; padding: 12px; background: #fff; border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .grocery-sec { display: none; background: var(--card); border-radius: 12px; padding: 16px; margin-top: 10px; }
+        .grocery-list { font-size: 0.85rem; line-height: 1.8; color: #444; }
     </style>
 </head>
 <body>
@@ -34,12 +44,23 @@
 
     <div id="meal-container"></div>
 
-    <div class="grocery-sec">
-        <h2>🛒 이번 주 4인 통합 장보기</h2>
+    <button class="grocery-btn" onclick="toggleGrocery()">🛒 이번 주 장보기 목록 보기 / 접기</button>
+    <div class="grocery-sec" id="grocery-sec">
+        <h3 style="margin-top:0; color:var(--primary);">🛒 1주일 통합 장보기 리스트</h3>
         <div class="grocery-list">
-            • <b>고기류:</b> 제육용 600g, 소불고기용 600g, 찌개용 돼지고기 600g, 목살 구이용 600g, 훈제오리 1팩<br>
+            • <b>고기류:</b> 돼지고기 제육용 600g, 소불고기용 600g, 찌개용 돼지고기 600g, 돼지목살 구이용 600g, 훈제오리 1팩<br>
             • <b>제철 나물:</b> 달래 1묶음, 냉이 1봉, 봄동 2포기, 부추 1단, 시금치 1단<br>
-            • <b>야채/기타:</b> 대파, 양파, 마늘, 콩나물 2봉, 두부 2모, 계란 1판, 양송이, 오이
+            • <b>야채류:</b> 대파 1단, 양파 1망, 마늘, 콩나물 2봉, 풋고추, 오이 2개, 양송이버섯 1봉<br>
+            • <b>기타/양념:</b> 두부 2모, 사각어묵 1봉, 스위트콘 1캔, 계란 1판, 기본 양념장
+        </div>
+    </div>
+
+    <!-- 레시피 팝업 모달 -->
+    <div class="modal" id="recipe-modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-top:0; color:var(--primary); font-size:1.2rem;"></h2>
+            <div id="modal-body"></div>
+            <button class="close-btn" onclick="closeModal()">닫기</button>
         </div>
     </div>
 
@@ -47,10 +68,38 @@
         const days = ['월요일', '화요일', '수요일', '목요일', '금요일'];
         
         const database = {
-            mains: ['제육볶음', '소불고기', '돼지고기 김치찜', '훈제오리 부추볶음', '돼지목살 찹스테이크', '돼지갈비찜', '우삼겹 숙주볶음'],
-            soups: ['달래 된장찌개', '냉이 된장국', '계란파국', '맑은 콩나물국', '양송이 들깨탕', '두부 새우젓국', '소고기 뭇국'],
-            side1s: ['봄동 겉절이', '콩나물무침', '풋고추 된장무침', '봄동 쌈 & 쌈장', '오이양파 무침', '부추 무침'],
-            side2s: ['계란찜', '조미김', '어묵볶음', '시금치 나물', '콘샐러드', '두부구이']
+            mains: ['제육볶음', '소불고기', '돼지고기 김치찜', '훈제오리 부추볶음', '돼지목살 찹스테이크'],
+            soups: ['달래 된장찌개', '냉이 된장국', '계란파국', '맑은 콩나물국', '양송이 들깨탕'],
+            side1s: ['봄동 겉절이', '콩나물무침', '풋고추 된장무침', '봄동 쌈 & 쌈장', '오이양파 무침'],
+            side2s: ['계란찜', '조미김', '어묵볶음', '시금치 나물', '콘샐러드']
+        };
+
+        const recipes = {
+            '제육볶음': [
+                '1. 돼지고기 600g에 고추장 3T, 고춧가루 2T, 간장 2T, 설탕 2T, 다진마늘 1T를 넣고 재워둡니다.',
+                '2. 달군 팬에 식용유 1T를 두르고 양념한 고기를 중강불에서 볶습니다.',
+                '3. 고기가 익어가면 채 썬 양파와 대파를 넣고 5분간 더 볶아 마무리합니다.'
+            ],
+            '소불고기': [
+                '1. 소불고기용 600g에 간장 5T, 설탕 2.5T, 다진마늘 1T, 참기름 1T, 후추 약간을 넣어 버무립니다.',
+                '2. 팬에 고기와 채 썬 양파, 버섯을 함께 넣고 중불에서 볶아줍니다.',
+                '3. 고기가 다 익으면 썬 대파를 넣고 한소끔 더 볶아 완성합니다.'
+            ],
+            '돼지고기 김치찜': [
+                '1. 냄비 바닥에 신김치 1/2포기를 깔고 찌개용 돼지고기 600g을 올립니다.',
+                '2. 물 600ml, 김칫국물 1컵, 설탕 1T, 고춧가루 1T를 넣고 뚜껑을 덮어 중약불에서 35분간 폭 끓입니다.',
+                '3. 대파와 두부를 얹고 5분간 더 끓여냅니다.'
+            ],
+            '훈제오리 부추볶음': [
+                '1. 팬에 훈제오리 400g을 넣고 노릇하게 볶아 기름을 약간 따라냅니다.',
+                '2. 굴소스 1T, 다진마늘 0.5T를 넣고 가볍게 볶습니다.',
+                '3. 불을 끄고 4cm 길이로 자른 부추를 넣어 잔열로 숨만 죽여 완성합니다.'
+            ],
+            '돼지목살 찹스테이크': [
+                '1. 목살 600g, 양파, 파프리카를 한 입 크기로 깍둑썰기합니다.',
+                '2. 돈가스소스 3T, 케첩 2T, 굴소스 1T, 올리고당 1T로 소스를 만듭니다.',
+                 me3. 팬에 목살을 먼저 구운 뒤 채소와 소스를 넣고 강불에서 센 불로 빠르게 볶아냅니다.'
+            ]
         };
 
         let currentPlan = [
@@ -67,15 +116,19 @@
 
             days.forEach((day, idx) => {
                 const item = currentPlan[idx];
+                const mainName = database.mains[item.main];
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-header">
                         <span class="day-title">${day}</span>
-                        <button class="btn-refresh" onclick="refreshDay(${idx})">🎲 이 날만 변경</button>
+                        <div class="btn-group">
+                            <button class="btn-action btn-recipe" onclick="openRecipe('${mainName}')">📖 조리방법</button>
+                            <button class="btn-action btn-refresh" onclick="refreshDay(${idx})">🎲 변경</button>
+                        </div>
                     </div>
                     <div class="menu-grid">
-                        <div class="menu-item"><strong>메인(고기)</strong>${database.mains[item.main]}</div>
+                        <div class="menu-item"><strong>메인(고기)</strong>${mainName}</div>
                         <div class="menu-item"><strong>국/찌개</strong>${database.soups[item.soup]}</div>
                         <div class="menu-item"><strong>반찬 1</strong>${database.side1s[item.side1]}</div>
                         <div class="menu-item"><strong>반찬 2</strong>${database.side2s[item.side2]}</div>
@@ -101,6 +154,24 @@
 
         function refreshAll() {
             days.forEach((_, idx) => refreshDay(idx));
+        }
+
+        function openRecipe(mainName) {
+            document.getElementById('modal-title').innerText = `🍳 [${mainName}] 간단 레시피`;
+            const body = document.getElementById('modal-body');
+            const stepList = recipes[mainName] || ['1. 재료를 먹기 좋게 손질합니다.', '2. 양념장과 함께 팬에서 숙련되게 볶아냅니다.', '3. 간을 보고 접시에 담아냅니다.'];
+            
+            body.innerHTML = stepList.map(step => `<div class="recipe-step">${step}</div>`).join('');
+            document.getElementById('recipe-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('recipe-modal').style.display = 'none';
+        }
+
+        function toggleGrocery() {
+            const sec = document.getElementById('grocery-sec');
+            sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
         }
 
         render();
