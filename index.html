@@ -3,266 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>제철 식단 도우미</title>
+    <title>🌱 제철 식단 도우미 (개선판)</title>
     <style>
-        :root { --primary: #2e7d32; --bg: #f5f5f5; --card: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background-color: var(--bg); color: #333; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; color: var(--primary); font-size: 1.4rem; }
-        .header p { margin: 5px 0 0; font-size: 0.85rem; color: #666; }
-        .btn-refresh-all { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-bottom: 15px; cursor: pointer; }
-        .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; }
-        .day-title { font-weight: bold; font-size: 1.1rem; color: #1b5e20; }
-        .btn-group { display: flex; gap: 6px; }
-        .btn-action { border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
-        .btn-recipe { background: #e3f2fd; color: #1565c0; }
-        .btn-refresh { background: #e8f5e9; color: var(--primary); }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85rem; }
-        .menu-item { background: #fafafa; padding: 6px 8px; border-radius: 6px; }
-        .menu-item strong { display: block; color: #666; font-size: 0.75rem; margin-bottom: 2px; }
-        
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100; justify-content:center; align-items:center; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 85%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
-        .close-btn { background: #666; color: white; border: none; padding: 8px 16px; border-radius: 6px; float: right; cursor: pointer; margin-top: 10px; }
-        
-        .recipe-section { margin-bottom: 16px; }
-        .recipe-section-title { font-weight: bold; font-size: 0.95rem; color: var(--primary); margin-bottom: 6px; border-bottom: 2px solid #e8f5e9; padding-bottom: 4px; }
-        .recipe-step { background: #f9f9f9; padding: 8px 10px; border-left: 3px solid var(--primary); margin-bottom: 6px; font-size: 0.85rem; line-height: 1.4; }
-        
-        .day-grocery-box { background: #fffde7; border: 1px solid #fff59d; border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.6; }
-        .day-grocery-title { font-weight: bold; color: #f57f17; margin-bottom: 6px; font-size: 0.9rem; }
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #e8f5e9;
+            --secondary: #d84315;
+            --bg: #f9fbf8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --border: #e0e0e0;
+        }
 
-        .grocery-btn { width: 100%; padding: 12px; background: #fff; border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .grocery-sec { display: none; background: var(--card); border-radius: 12px; padding: 16px; margin-top: 10px; }
-        .grocery-list { font-size: 0.85rem; line-height: 1.8; color: #444; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 16px;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 24px 16px;
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .controls-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .month-select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--primary);
+            background: white;
+            cursor: pointer;
+        }
+
+        .toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            background: #eee;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+        }
+
+        .shopping-list {
+            list-style: none;
+        }
+
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px stroke #f0f0f0;
+        }
+
+        .shopping-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .shopping-item label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .shopping-item input[type="checkbox"]:checked + label {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .btn-action {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #d4edda;
+        }
+
+        .timeline {
+            margin-top: 12px;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .timeline-step {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .timeline-time {
+            font-weight: bold;
+            color: var(--secondary);
+            min-width: 55px;
+        }
+
+        .badge {
+            background: #ffecb3;
+            color: #8f6b00;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 id="app-title">🌱 제철 식단 도우미</h1>
+    <header>
+        <h1>🌱 제철 식단 도우미</h1>
         <p>4인 가구 · 고기 메인 · 초보자 1시간 컷</p>
-    </div>
+    </header>
 
-    <button class="btn-refresh-all" onclick="refreshAll()">🔄 이번 주 식단 전체 리프레쉬</button>
-
-    <div id="meal-container"></div>
-
-    <button class="grocery-btn" onclick="toggleGrocery()">🛒 이번 주 통합 장보기 목록 보기 / 접기</button>
-    <div class="grocery-sec" id="grocery-sec">
-        <h3 id="grocery-title" style="margin-top:0; color:var(--primary);">🛒 1주일 추천 기본 장보기</h3>
-        <div class="grocery-list">
-            • <b>고기류:</b> 돼지고기(제육/찌개/불고기용), 소불고기용, 닭고기, 훈제오리, 햄/소시지<br>
-            • <b>제철 채소:</b> 봄동, 냉이, 달래, 부추, 시금치, 아욱, 근대, 애호박, 감자, 대파, 양파<br>
-            • <b>기타 필수 재료:</b> 두부, 계란, 어묵, 느타리/팽이버섯, 콩나물, 기본 가공 양념류
+    <div class="controls-panel">
+        <div>
+            <label for="monthSelect">📅 월 선택: </label>
+            <select id="monthSelect" class="month-select" onchange="renderApp()">
+                <!-- JS로 월 추가됨 -->
+            </select>
         </div>
+        <button id="wakeLockBtn" class="toggle-btn" onclick="toggleWakeLock()">
+            💡 화면 켜짐 유지 OFF
+        </button>
     </div>
 
-    <div class="modal" id="recipe-modal">
-        <div class="modal-content">
-            <h2 id="modal-title" style="margin-top:0; color:var(--primary); font-size:1.2rem;"></h2>
-            <div id="modal-body"></div>
-            <button class="close-btn" onclick="closeModal()">닫기</button>
+    <!-- 1주일 추천 기본 장보기 -->
+    <div class="card">
+        <div class="card-title">
+            <span>🛒 <span id="monthTitle"></span> 1주일 장보기</span>
+        </div>
+        <ul id="shoppingList" class="shopping-list">
+            <!-- JS로 동적 추가 -->
+        </ul>
+        <button class="btn-action" onclick="copyShoppingList()">📋 장보기 목록 복사하기</button>
+    </div>
+
+    <!-- 오늘의 추천 식단 -->
+    <div class="card">
+        <div class="card-title">
+            <span>🍲 오늘의 추천 식단</span>
+            <button style="background:none; border:none; cursor:pointer; font-size:0.9rem; color:#666;" onclick="randomizeMenu()">🔄 메뉴 변경</button>
+        </div>
+        <div id="menuContent">
+            <!-- JS로 동적 추가 -->
+        </div>
+
+        <div class="timeline">
+            <strong>⏱️ 1시간 컷 초보 조리 동선 (타임라인)</strong>
+            <div id="timelineSteps" style="margin-top: 8px;">
+                <!-- JS로 동적 추가 -->
+            </div>
         </div>
     </div>
 
     <script>
-        const currentMonth = new Date().getMonth() + 1;
-        document.getElementById('app-title').innerText = `🌱 ${currentMonth}월 제철 식단 도우미`;
-        document.title = `${currentMonth}월 제철 밥상 - 4인 가구 식단기`;
-
-        const days = ['월요일', '화요일', '수요일', '목요일', '금요일'];
-
-        const database = {
-            mains: [
-                '제육볶음', '간장 돼지불고기', '소불고기', '돼지고기 김치찜', '훈제오리 부추볶음',
-                '돼지목살 찹스테이크', '닭갈비', '돼지갈비찜', '우삼겹 숙주볶음', '카레라이스',
-                '하이라이스', '마파두부', '대패삼겹살 숙주볶음', '오삼불고기(오징어+돼지고기)', '닭볶음탕',
-                '간장 닭조림', '소고기 버섯전골', '돼지고기 고추장찌개', '스팸 두부짜글이', '차돌박이 야채찜',
-                '훈제오리 굴소스볶음', '돼지목살 구이', '소고기 찹스테이크', '돈가스 & 샐러드', '함박스테이크',
-                '소고기 야채볶음', '돼지고기 콩나물불고기', '궁중떡볶이', '춘천 닭갈비', '찜닭',
-                '순살 안동찜닭', '소고기 당면볶음', '대패삼겹 간장볶음', '제육 오징어볶음', '스팸 김치볶음',
-                '소시지 야채볶음', '돼지고기 가지볶음', '차돌박이 부추무침', '훈제오리 단호박찜', '돼지고기 짜장상차림',
-                '소고기 마늘종볶음', '삼겹살 구이', '돼지고기 양배추볶음', '소고기 숙주볶음', '닭가슴살 카레볶음',
-                '돼지고기 파채볶음', '소불고기 버섯볶음', '닭안심 간장조림', '돼지고기 두부김치', '훈제오리 무쌈말이',
-                '소고기 팽이버섯말이', '돼지갈비 양념구이', '대패삼겹 꽈리고추볶음', '닭다리살 대파구이', '스팸계란부침',
-                '소고기 애호박볶음', '돼지고기 깻잎볶음', '우삼겹 부추볶음', '닭가슴살 굴소스볶음', '돼지고기 마늘종볶음',
-                '소불고기 떡볶이', '훈제오리 양배추볶음', '돼지고기 느타리볶음', '소고기 청경채볶음', '닭볶음 간장양념',
-                '돼지목살 간장구이', '대패삼겹 김치볶음', '차돌박이 팽이버섯볶음', '스팸 감자조림', '소고기 양파볶음',
-                '돼지고기 피망볶음', '훈제오리 채소볶음', '닭가슴살 야채볶음', '돼지고기 표고버섯볶음', '소불고기 당면전골',
-                '우삼겹 꽈리고추볶음', '돼지목살 수육', '닭안심 찹스테이크', '소고기 굴소스볶음', '제육 오징어불고기'
-            ],
-            soups: [
-                '달래 된장찌개', '냉이 된장국', '계란파국', '맑은 콩나물국', '양송이 들깨탕',
-                '두부 새우젓국', '소고기 뭇국', '돼지고기 김치찌개', '차돌박이 된장찌개', '순두부찌개',
-                '아욱 된장국', '근대 된장국', '배추 된장국', '시금치 된장국', '소고기 미역국',
-                '황태 계란국', '감자 양파국', '버섯 들깨탕', '애호박 된장찌개', '청국장찌개',
-                '부대찌개', '소고기 육개장', '콩나물 김칫국', '만둣국', '떡국',
-                '소고기 배춧국', '두부 김치찌개', '팽이버섯 계란국', '어묵국', '유부 장국',
-                '무채국', '소고기 버섯국', '시래기 된장국', '두부 들깨국', '순두부 계란국',
-                '양배추 된장국', '소고기 토란국', '황태 콩나물국', '감자 된장찌개', '스팸 순두부찌개',
-                '달래 순두부찌개', '냉이 미역국', '봄동 된장국', '소고기 콩나물국', '얼큰 콩나물국',
-                '계란 만둣국', '두부 부추국', '어묵 곤약국', '버섯 된장찌개', '소고기 차돌찌개',
-                '애호박 새우젓국', '단호박 들깨탕', '소고기 아욱국', '황태 무채국', '순두부 김칫국',
-                '팽이버섯 된장국', '시금치 계란국', '소고기 근대국', '두부 팽이버섯국', '어묵 쑥갓국',
-                '콩나물 미역국', '무 두부국', '소고기 계란국', '차돌 콩나물국', '달래 두부국',
-                '냉이 콩나물국', '봄동 계란국', '소고기 시금치국', '버섯 계란국', '어묵 김칫국',
-                '순두부 들깨탕', '애호박 계란국', '두부 배춧국', '소고기 황태국', '차돌 미역국',
-                '콩나물 어묵국', '황태 버섯국', '시금치 두부국', '아욱 계란국', '근대 두부국'
-            ],
-            side1s: [
-                '봄동 겉절이', '콩나물무침', '풋고추 된장무침', '봄동 쌈 & 쌈장', '오이양파 무침',
-                '부추 무침', '시금치 나물', '무생채', '애호박 볶음', '느타리버섯 볶음',
-                '가지 볶음', '양배추 찌와 쌈장', '파채 무침', '숙주나물 무침', '고사리 나물',
-                '취나물 무침', '참나물 무침', '돌나물 초고추장무침', '달래 오이무침', '냉이 나물무침',
-                '도라지 구이', '도라지 생채', '미나리 무침', '상추 겉절이', '깻잎순 볶음',
-                '알배기배추 겉절이', '꽈리고추 찜', '가지 찜', '브로콜리 숙회', '양송이버섯 구이',
-                '팽이버섯 전', '표고버섯 볶음', '새송이버섯 볶음', '애호박 전', '느타리버섯 전',
-                '무말랭이 무침', '연근 조림', '우엉 조림', '마늘종 볶음', '마늘종 장아찌',
-                '양파 장아찌', '깻잎 장아찌', '고추 장아찌', '열무 나물', '곤드레 나물',
-                '비름나물 무침', '세발나물 무침', '원추리 나물', '두릅 숙회', '쑥갓 무침',
-                '청경채 굴소스볶음', '청경채 나물', '콜라비 생채', '비트 무생채', '단호박 찜',
-                '감자 채볶음', '감자 조림', '알감자 조림', '고구마 줄기볶음', '호박잎 쌈',
-                '머위대 볶음', '머위 나물', '토란대 볶음', '죽순 볶음', '더덕 구이',
-                '더덕 생채', '달래전', '봄동전', '냉대전', '부추전', '김치전',
-                '배추전', '옥수수전', '감자전', '호박채전', '버섯 모둠전', '양배추 무침',
-                '상추 쌈', '깻잎 쌈', '오이고추 무침', '풋고추 찜'
-            ],
-            side2s: [
-                '계란찜', '조미김', '어묵볶음', '콘샐러드', '두부구이',
-                '훈제오리 샐러드', '소시지 구이', '계란말이', '메추리알 장조림', '두부 조림',
-                '치즈 계란말이', '스팸 구이', '단호박 샐러드', '감자 샐러드', '고구마 샐러드',
-                '양배추 샐러드', '두부 부침', '어묵 간장조림', '매콤 어묵볶음', '계란 후라이',
-                '스크램블 에그', '삶은 계란', '메추리알 곤약조림', '비엔나 소시지볶음', '동그랑땡',
-                '해물완자(고기류 기반)', '떡갈비 구이', '군만두', '물만두', '두부 김치볶음',
-                '두부 탕수', '어묵 잡채', '잡채', '마카로니 샐러드', '게살 크래미 샐러드',
-                '단두부 조림', '순두부 간장 양념', '계란장', '알조림', '스팸 볶음',
-                '햄 계란부침', '맛살 계란말이', '파 계란말이', '명란 계란찜(명란포함시)', '야채 계란찜',
-                '뚝배기 계란찜', '순두부 샐러드', '연두부 오리엔탈', '어묵 야채볶음', '소시지 케첩볶음',
-                '떡꼬치 양념강정', '치킨너겟', '용가리 치킨', '미니 돈가스', '고구마 고로케',
-                '감자 고로케', '야채 고로케', '김말이 튀김', '군고구마', '찐옥수수',
-                '단호박 구이', '구운 버섯', '두부 싹무침', '스팸 깍둑볶음', '비엔나 엽떡식볶음',
-                '계란 만두', '어묵 핫바', '두부 스테이크', '계란 빵', '스팸 계란말이',
-                '어묵 튀김', '치즈 두부구이', '계란 카레구이', '소시지 꾜치', '떡 소시지 볶음',
-                '메추리알 카레조림', '두부 깐풍', '어묵 떡볶이', '계란 부침', '스팸전'
-            ]
+        // 월별 제철 데이터베이스
+        const seasonalData = {
+            3: {
+                veggies: "봄동 1포기, 냉이 100g, 달래 1단, 부추 1단, 시금치 1단, 대파, 양파, 감자",
+                meat: "돼지고기(제육용 600g, 찌개용 300g), 소불고기용 600g, 닭볶음탕용 1kg, 훈제오리 500g",
+                staples: "두부 2모, 계란 1판, 어묵 1봉, 느타리버섯 1팩, 콩나물 1봉",
+                menu: {
+                    main: "달래 향 가득 돼지 제육볶음 (600g)",
+                    soup: "냉이 바지락 된장찌개",
+                    side: "봄동 겉절이, 계란찜",
+                    sub: "봄동 대신 배추나 청경채 활용 가능"
+                }
+            },
+            4: {
+                veggies: "취나물 1단, 두릅 200g, 부추 1단, 애호박 1개, 양파, 대파, 마늘",
+                meat: "돼지목살 600g, 소불고기용 600g, 닭가슴살 500g, 훈제오리 500g",
+                staples: "두부 2모, 계란 1판, 팽이버섯 2팩, 콩나물 1봉",
+                menu: {
+                    main: "단짠 간장 소불고기 (600g)",
+                    soup: "칼칼한 애호박 두부찌개",
+                    side: "취나물 무침, 부추전",
+                    sub: "취나물 대신 시금치 활용 가능"
+                }
+            },
+            // 기본값 (기타 월 공통 처리)
+            default: {
+                veggies: "시금치, 애호박, 감자, 대파, 양파, 느타리버섯, 콩나물",
+                meat: "돼지고기(제육/찌개용 900g), 소불고기용 600g, 훈제오리 500g",
+                staples: "두부 2모, 계란 1판, 어묵 1봉",
+                menu: {
+                    main: "매콤 돼지 제육볶음 (600g)",
+                    soup: "진한 두부 김치찌개",
+                    side: "계란말이, 콩나물 무침",
+                    sub: "느타리버섯 대신 새송이버섯 활용 가능"
+                }
+            }
         };
 
-        let currentPlan = [
-            { main: 0, soup: 0, side1: 0, side2: 0 },
-            { main: 1, soup: 1, side1: 1, side2: 1 },
-            { main: 2, soup: 2, side1: 2, side2: 2 },
-            { main: 3, soup: 3, side1: 3, side2: 3 },
-            { main: 4, soup: 4, side1: 4, side2: 4 }
+        const timelineTemplate = [
+            { time: "0~10분", step: "밥 앉히기, 육수 물 끓이기, 고기 양념 재우기" },
+            { time: "10~25분", step: "채소 세척 및 썰기, 국/찌개 재료 넣고 끓이기 시작" },
+            { time: "25~45분", step: "메인 고기 요리 강불에서 볶기 / 계란찜/부추전 준비" },
+            { time: "45~60분", step: "찌개 간 맞추기, 밑반찬 접시 담기 및 상차림 완료!" }
         ];
 
-        function render() {
-            const container = document.getElementById('meal-container');
-            container.innerHTML = '';
+        let wakeLock = null;
 
-            days.forEach((day, idx) => {
-                const item = currentPlan[idx];
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="day-title">${day}</span>
-                        <div class="btn-group">
-                            <button class="btn-action btn-recipe" onclick="openDayRecipe(${idx})">📖 조리방법</button>
-                            <button class="btn-action btn-refresh" onclick="refreshDay(${idx})">🎲 변경</button>
-                        </div>
-                    </div>
-                    <div class="menu-grid">
-                        <div class="menu-item"><strong>메인(고기)</strong>${database.mains[item.main]}</div>
-                        <div class="menu-item"><strong>국/찌개</strong>${database.soups[item.soup]}</div>
-                        <div class="menu-item"><strong>반찬 1</strong>${database.side1s[item.side1]}</div>
-                        <div class="menu-item"><strong>반찬 2</strong>${database.side2s[item.side2]}</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+        // 초기화
+        window.onload = () => {
+            initMonthSelect();
+            renderApp();
+        };
+
+        function initMonthSelect() {
+            const select = document.getElementById('monthSelect');
+            const currentMonth = new Date().getMonth() + 1;
+
+            for (let i = 1; i <= 12; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${i}월`;
+                if (i === currentMonth) opt.selected = true;
+                select.appendChild(opt);
+            }
         }
 
-        function getRandomIndex(array) {
-            return Math.floor(Math.random() * array.length);
-        }
+        function renderApp() {
+            const month = document.getElementById('monthSelect').value;
+            const data = seasonalData[month] || seasonalData.default;
 
-        function refreshDay(idx) {
-            currentPlan[idx] = {
-                main: getRandomIndex(database.mains),
-                soup: getRandomIndex(database.soups),
-                side1: getRandomIndex(database.side1s),
-                side2: getRandomIndex(database.side2s)
-            };
-            render();
-        }
+            document.getElementById('monthTitle').textContent = `${month}월`;
 
-        function refreshAll() {
-            days.forEach((_, idx) => refreshDay(idx));
-        }
-
-        function openDayRecipe(idx) {
-            const dayName = days[idx];
-            const item = currentPlan[idx];
-            
-            const mainName = database.mains[item.main];
-            const soupName = database.soups[item.soup];
-            const side1Name = database.side1s[item.side1];
-            const side2Name = database.side2s[item.side2];
-
-            const menuList = [
-                { category: '🥩 메인 요리', name: mainName },
-                { category: '🍲 국 / 찌개', name: soupName },
-                { category: '🥗 반찬 1', name: side1Name },
-                { category: '🥗 반찬 2', name: side2Name }
-            ];
-
-            document.getElementById('modal-title').innerText = `🍳 [${dayName}] 전체 한 상 레시피`;
-            const body = document.getElementById('modal-body');
-            body.innerHTML = '';
-
-            // [오늘의 식재료 장보기 상자 추가]
-            const groceryBox = document.createElement('div');
-            groceryBox.className = 'day-grocery-box';
-            groceryBox.innerHTML = `
-                <div class="day-grocery-title">🛒 오늘 한 상 식재료 장보기 목록</div>
-                • <b>메인 재료:</b> ${mainName}용 고기/주재료, ${soupName}용 재료<br>
-                • <b>반찬 재료:</b> ${side1Name} 재료, ${side2Name} 재료<br>
-                • <b>기통 채소/양념:</b> 대파, 양파, 다진 마늘, 국간장/고추장/된장, 참기름
+            // 장보기 리스트 출력
+            const shoppingListEl = document.getElementById('shoppingList');
+            shoppingListEl.innerHTML = `
+                <li class="shopping-item">
+                    <input type="checkbox" id="item1"><label for="item1"><b>고기류:</b> ${data.meat}</label>
+                </li>
+                <li class="shopping-item">
+                    <input type="checkbox" id="item2"><label for="item2"><b>제철 채소:</b> ${data.veggies}</label>
+                </li>
+                <li class="shopping-item">
+                    <input type="checkbox" id="item3"><label for="item3"><b>필수 재료:</b> ${data.staples}</label>
+                </li>
             `;
-            body.appendChild(groceryBox);
 
-            menuList.forEach(menu => {
-                const sec = document.createElement('div');
-                sec.className = 'recipe-section';
-                
-                let stepsHtml = `
-                    <div class="recipe-step">1. [${menu.name}] 주재료와 채소를 먹기 좋은 크기로 손질합니다.</div>
-                    <div class="recipe-step">2. 기본 양념(간장/고추장/된장/소금 등)으로 간을 맞추어 10~15분 내로 볶거나 끓여냅니다.</div>
-                    <div class="recipe-step">3. 간을 본 후 불을 끄고 참기름이나 대파를 넣어 마무리합니다.</div>
-                `;
-                
-                sec.innerHTML = `
-                    <div class="recipe-section-title">${menu.category}: ${menu.name}</div>
-                    ${stepsHtml}
-                `;
-                body.appendChild(sec);
+            // 오늘의 식단 출력
+            renderMenu(data.menu);
+
+            // 타임라인 출력
+            const timelineEl = document.getElementById('timelineSteps');
+            timelineEl.innerHTML = timelineTemplate.map(t => `
+                <div class="timeline-step">
+                    <span class="timeline-time">${t.time}</span>
+                    <span>${t.step}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderMenu(menu) {
+            const menuEl = document.getElementById('menuContent');
+            menuEl.innerHTML = `
+                <p style="font-size:1.1rem; font-weight:bold; margin-bottom:6px;">🥩 메인: ${menu.main}</p>
+                <p style="font-size:1rem; margin-bottom:6px;">🍲 국/찌개: ${menu.soup}</p>
+                <p style="font-size:0.95rem; color:#555; margin-bottom:8px;">🥗 밑반찬: ${menu.side}</p>
+                <p style="font-size:0.85rem; color:#777;">💡 <i>대체 팁: ${menu.sub}</i></p>
+            `;
+        }
+
+        function randomizeMenu() {
+            const sampleMenus = [
+                { main: "훈제오리 부추볶음 (500g)", soup: "맑은 콩나물국", side: "계란말이, 오이무침", sub: "부추 대신 양파/양배추 채썰어 활용" },
+                { main: "춘천식 닭갈비 (1kg)", soup: "계란파국", side: "쌈채소, 콘샐러드", sub: "닭고기 대신 돼지 불고기용 변경 가능" },
+                { main: "돼지고기 간장 불고기 (600g)", soup: "아욱 된장국", side: "부추 겉절이, 어묵볶음", sub: "아욱 대신 근대/시금치 가능" }
+            ];
+            const random = sampleMenus[Math.floor(Math.random() * sampleMenus.length)];
+            renderMenu(random);
+        }
+
+        function copyShoppingList() {
+            const month = document.getElementById('monthSelect').value;
+            const data = seasonalData[month] || seasonalData.default;
+            const text = `[${month}월 4인가구 장보기 리스트]\n- 고기류: ${data.meat}\n- 제철채소: ${data.veggies}\n- 기타: ${data.staples}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('장보기 목록이 클립보드에 복사되었습니다! 카톡이나 메모장에 붙여넣으세요.');
             });
-
-            document.getElementById('recipe-modal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('recipe-modal').style.display = 'none';
+        // 화면 켜짐 유지 (Wake Lock API)
+        async function toggleWakeLock() {
+            const btn = document.getElementById('wakeLockBtn');
+            if (!wakeLock) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    btn.classList.add('active');
+                    btn.textContent = '💡 화면 켜짐 유지 ON';
+                } catch (err) {
+                    alert('이 브라우저에서는 화면 켜짐 유지 기능을 지원하지 않습니다.');
+                }
+            } else {
+                wakeLock.release();
+                wakeLock = null;
+                btn.classList.remove('active');
+                btn.textContent = '💡 화면 켜짐 유지 OFF';
+            }
         }
-
-        function toggleGrocery() {
-            const sec = document.getElementById('grocery-sec');
-            sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
-        }
-
-        refreshAll();
     </script>
 </body>
 </html>
